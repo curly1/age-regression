@@ -1,7 +1,7 @@
 %% calculate i-vectors and save to ivec.mat
 clear
 addpath([cd '/MSR Identity Toolkit v1.0/code'])
-addpath([cd '/code'])
+addpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')
 %% SETTINGS
 cv          = 0;            % 1 - perform crossvalidation on train data, 0 - use test data for test and train data for models
 load_ubm    = 1;            % 1 - load ubm from file, 0 - create ubm
@@ -132,4 +132,4 @@ males = (ascii == 109);
 save('allDataWithAge_ivec_400_TUBMzYTAgenderGerman_MFCC60DPartitioned_win30s.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
 
 rmpath([cd '/MSR Identity Toolkit v1.0/code'])
-rmpath([cd '/code'])
+rmpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')
