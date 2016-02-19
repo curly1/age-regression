@@ -20,6 +20,9 @@ tvDim = 400;
 niter = 5;
 T = train_tv_space(stats_T, ubm, tvDim, niter, nworkers);
 
-save([cd '/data/ubm' num2str(nmix) '_T' num2str(tvDim) '_YT_agender_german_ubm_MFCC60D.mat'], 'ubm', 'T');
+try
+save(['/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/ubm' num2str(nmix) '_T' num2str(tvDim) '_agender_german_ubm_PitchParams12D.mat'], 'ubm', 'T');
+catch
+end
 
 end

@@ -55,7 +55,7 @@ for i=1:N
 end
 
 data = table(file_id, duration_sec, PitchParams, ... 
-    'VariableNames',{'file_id', 'duration_sec', 'PitchParams'});
+    'VariableNames',{'file_id', 'duration_sec', 'MFCC_delta_cms'});
 
 data = sortrows(data, 'file_id' ,'ascend');
 
