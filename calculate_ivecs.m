@@ -4,20 +4,20 @@ addpath([cd '/MSR Identity Toolkit v1.0/code'])
 addpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')
 %% SETTINGS
 cv          = 0;            % 1 - perform crossvalidation on train data, 0 - use test data for test and train data for models
-load_ubm    = 0;            % 1 - load ubm from file, 0 - create ubm
+load_ubm    = 1;            % 1 - load ubm from file, 0 - create ubm
 K           = 1;            % k - fold cross-validation
 plot        = 1;
 MFCCPart    = 0;
 
 %% Train data
-train_database = load('database_aGenderPitchParams12D.mat');
+train_database = load('database_aGenderPitchParams12D_1s.mat');
 train_database = train_database.database;
 train_database = sortrows(train_database,'file_id','ascend');
 
 %% Test data
 if cv == 0
     K = 1;
-    test_database = load('database_aGenderPitchParams12D.mat');
+    test_database = load('database_aGenderPitchParams12D_1s.mat');
     test_database = test_database.database;
     test_database = sortrows(test_database,'file_id','ascend');
 end
@@ -37,7 +37,7 @@ if load_ubm == 0,
 end
 %% also check for empty parameters (MFCC_delta_cms) cell array
 train_database = checkDatabaseNaN(train_database);
-test_database = checkDatabaseNaN(test_database);
+if cv == 0, test_database = checkDatabaseNaN(test_database); end;
 
 %% Data Partition
 %if cv == 1, folds = databasePartition(train_database, K); end % proportional database partition
@@ -50,7 +50,7 @@ classes = unique(train_database.age_class);
 NClass =  size(unique(train_database.age_class),1);
 
 %% Train/load ubm
-if load_ubm == 1, for_ubm = load('ubm1024_T400_YT_agender_german_ubm_MFCC60D.mat'); ubm = for_ubm.ubm; T = for_ubm.T;
+if load_ubm == 1, for_ubm = load('ubm1024_T400_agender_german_ubm_PitchParams12D.mat'); ubm = for_ubm.ubm; T = for_ubm.T;
 else [ubm,T] = ubmCalc(ubm_database.MFCC_delta_cms, T_database.MFCC_delta_cms);
 end
 %% MFCC Partition
@@ -132,7 +132,7 @@ females = (ascii == 102);
 children = (ascii == 120);
 males = (ascii == 109);
 
-save('aGender_ivec_400_TUBMz_agender_german_ubm_PitchParams12D.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
+save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_400_TUBMz_agender_german_ubm_PitchParams12D_1s.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
 
 rmpath([cd '/MSR Identity Toolkit v1.0/code'])
 rmpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')

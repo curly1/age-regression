@@ -56,7 +56,7 @@ end
 
 data = table(file_id, duration_sec, PitchParams, ... 
     'VariableNames',{'file_id', 'duration_sec', 'MFCC_delta_cms'});
-
+%%
 data = sortrows(data, 'file_id' ,'ascend');
 
 if nargin>3, 
@@ -83,8 +83,8 @@ if nargin>3,
   else
     database = data;
 end
-
-save(['/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/database_', corpusName, 'PitchParams', num2str(size(PitchParams{1,1},1)) , 'D.mat'], 'database')
+%%
+save(['/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/database_', corpusName, 'PitchParams', num2str(size(PitchParams{1,1},1)) , 'D_1s.mat'], 'database')
 summary(database)
 rmpath(path_to_wavs)
 
