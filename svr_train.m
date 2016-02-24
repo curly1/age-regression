@@ -14,12 +14,14 @@ maxAge = 80;
 %group = (data.females);
 %group = (data.males | data.females | data.children);
 group = logical(data.labels);
-folds = f;
+folds = folds3;
+gam = gam3;
+sig2 = sig23;
 %who = who2;
 %gam = ones(15,1).*gam;
 %sig2 = ones(15,1).*sig2;
 
-folds = folds(group);
+%folds = folds(group);
 %group = logical(data.labels);          % all data
 kernel = 'RBF_kernel';
 whiten = 0;
@@ -39,7 +41,7 @@ for k = 1:K
     test_idx = (folds == k);
     train_idx = (folds ~= k);
     
-    [gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
+    %[gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
     
     if whiten == 1
         m = mean(X(train_idx,:));
