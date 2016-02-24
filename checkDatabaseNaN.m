@@ -1,4 +1,4 @@
-function databaseWithoutNaN = checkDatabaseNaN(database)
+function [databaseWithoutNaN, idx] = checkDatabaseNaN(database)
 
 N = length(database.MFCC_delta_cms);
 a = zeros(N,1);
