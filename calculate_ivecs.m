@@ -36,8 +36,8 @@ if load_ubm == 0,
     T_database = checkDatabaseNaN(T_database);
 end
 %% also check for empty parameters (MFCC_delta_cms) cell array
-train_database = checkDatabaseNaN(train_database);
-if cv == 0, test_database = checkDatabaseNaN(test_database); end;
+[train_database, idx] = checkDatabaseNaN(train_database);
+if cv == 0, [test_database, idx] = checkDatabaseNaN(test_database); end;
 
 %% Data Partition
 %if cv == 1, folds = databasePartition(train_database, K); end % proportional database partition
