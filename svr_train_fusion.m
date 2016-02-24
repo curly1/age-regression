@@ -71,15 +71,15 @@ Y_pred1 = Y_pred1(idx);
 % usuwanie trendu
 lin_func = polyfit((1:length(Y_true1))', Y_true1, 1);
 Y_true1_lin_func = Y_true1 - polyval(lin_func, (1:length(Y_true1))')+mean(Y_true1);
-%Y_pred1_lin_func = Y_pred1 - polyval(lin_func, (1:length(Y_true1))');
+Y_pred1_lin_func = Y_pred1 - polyval(lin_func, (1:length(Y_true1))')+mean(Y_true1);
 
-MAE1_lin_func = 1/(length(Y_pred1))*sum(abs(Y_pred1-Y_true1_lin_func));
+MAE1_lin_func = 1/(length(Y_pred1_lin_func))*sum(abs(Y_pred1_lin_func-Y_true1_lin_func));
 MAE1 = 1/(length(Y_pred1))*sum(abs(Y_pred1-Y_true1));
 MAE_std1 = std(abs(Y_pred1-Y_true1));
 
 %% 2nd model
-%[g(k),s2(k)] = tunelssvm({X2(train_idx,:),Y2(train_idx),type,[],[], kernel},...
-%    'simplex', 'leaveoneoutlssvm',{'mse'});
+[g(k),s2(k)] = tunelssvm({X2(train_idx,:),Y2(train_idx),type,[],[], kernel},...
+    'simplex', 'leaveoneoutlssvm',{'mse'});
 gam = g(k);
 sig2 = s2(k);
 [alpha2,b2] = trainlssvm({X2(train_idx,:),Y2(train_idx),type,gam,sig2, kernel});
@@ -131,7 +131,7 @@ end
 P = mean(pearson);
 MAE = mean(MAE_diff);
 
-mean(MAE1Detrend)
+mean(MAE1Detrend);
 mean(MAE_fu)
 mean(MAE1k)
 mean(MAE2k)
