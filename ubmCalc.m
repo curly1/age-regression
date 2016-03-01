@@ -21,7 +21,7 @@ niter = 1;
 T = train_tv_space(stats_T, ubm, tvDim, niter, nworkers);
 
 try
-save(['/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/ubm' num2str(nmix) '_T' num2str(tvDim) '_agender_german_ubm_PitchParams12D_v2.mat'], 'ubm', 'T');
+save(['/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/ubm' num2str(nmix) '_T' num2str(tvDim) '_agender_test_WEKA.mat'], 'ubm', 'T');
 catch
 end
 

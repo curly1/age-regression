@@ -4,20 +4,20 @@ addpath([cd '/MSR Identity Toolkit v1.0/code'])
 addpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')
 %% SETTINGS
 cv          = 0;            % 1 - perform crossvalidation on train data, 0 - use test data for test and train data for models
-load_ubm    = 1;            % 1 - load ubm from file, 0 - create ubm
+load_ubm    = 0;            % 1 - load ubm from file, 0 - create ubm
 K           = 1;            % k - fold cross-validation
 plot        = 1;
 MFCCPart    = 0;
 
 %% Train data
-train_database = load('database_aGenderPitchParams12D_1s.mat');
+train_database = load('agender_train_dev_WEKA.mat');
 train_database = train_database.database;
 train_database = sortrows(train_database,'file_id','ascend');
 
 %% Test data
 if cv == 0
     K = 1;
-    test_database = load('database_aGenderPitchParams12D_1s.mat');
+    test_database = load('agender_train_dev_WEKA.mat');
     test_database = test_database.database;
     test_database = sortrows(test_database,'file_id','ascend');
 end
@@ -26,14 +26,18 @@ end
 if load_ubm == 0,
     %ubm_database = train_database;
     %ubm_database = load('/storage/dane/jgrzybowska/MATLAB/ivectors/kroswalidacja_ivectors/parameterization_and_data_prep/_database_YT_agender_german_ubm.mat');
-    ubm_database = load('database_agender_german_ubmPitchParams12D');
-    ubm_database = ubm_database.database;
+    ubm_database = load('agender_test_WEKA.mat');
+    ubm_database = ubm_database.all_cms;
+    ubm_database = num2cell(ubm_database, [1 2]);
+    %ubm_database = ubm_database.database;
     %T_database = train_database;
     %T_database = load('/storage/dane/jgrzybowska/MATLAB/ivectors/kroswalidacja_ivectors/parameterization_and_data_prep/_database_YT_agender_german_ubm.mat');
-    T_database = load('database_agender_german_ubmPitchParams12D'); 
-    T_database = T_database.database;
-    ubm_database = checkDatabaseNaN(ubm_database);
-    T_database = checkDatabaseNaN(T_database);
+    T_database = load('agender_test_WEKA.mat'); 
+    T_database = T_database.all_cms;
+    T_database = num2cell(T_database, [1 2]);
+    %T_database = T_database.database;
+    %ubm_database = checkDatabaseNaN(ubm_database);
+    %T_database = checkDatabaseNaN(T_database);
 end
 %% also check for empty parameters (MFCC_delta_cms) cell array
 [train_database, idx] = checkDatabaseNaN(train_database);
@@ -51,7 +55,8 @@ NClass =  size(unique(train_database.age_class),1);
 
 %% Train/load ubm
 if load_ubm == 1, for_ubm = load('ubm1024_T400_agender_german_ubm_PitchParams12D.mat'); ubm = for_ubm.ubm; T = for_ubm.T;
-else [ubm,T] = ubmCalc(ubm_database.MFCC_delta_cms, T_database.MFCC_delta_cms);
+else %[ubm,T] = ubmCalc(ubm_database.MFCC_delta_cms, T_database.MFCC_delta_cms);
+    [ubm,T] = ubmCalc(ubm_database, T_database);
 end
 %% MFCC Partition
 if MFCCPart == 1
@@ -131,8 +136,8 @@ ascii = ascii';
 females = (ascii == 102);
 children = (ascii == 120);
 males = (ascii == 109);
-
-save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_400_TUBMz_agender_german_ubm_PitchParams12D_1s.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
+%%
+save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
 
 rmpath([cd '/MSR Identity Toolkit v1.0/code'])
 rmpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')

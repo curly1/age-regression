@@ -4,7 +4,7 @@ addpath([cd '/LSSVM/LSSVMlabv1_8_R2009b_R2011a'])
 dataFolderPath = '/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/';
 addpath(dataFolderPath)
 
-data = load([dataFolderPath 'aGender_ivec_400_TUBMz_agender_german_ubm_PitchParams12D_1s.mat']);
+data = load([dataFolderPath 'aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams.mat']);
 load([dataFolderPath '/fixed_folds_aGender_K15.mat']);
 %load('hyperparams.mat');
 
@@ -14,10 +14,10 @@ maxAge = 80;
 %group = (data.females);
 %group = (data.males | data.females | data.children);
 group = logical(data.labels);
-folds = folds3;
-gam = gam3;
-sig2 = sig23;
-%who = who2;
+folds = f;
+%gam = gam3;
+%sig2 = sig23;
+who = w;
 %gam = ones(15,1).*gam;
 %sig2 = ones(15,1).*sig2;
 
@@ -25,7 +25,7 @@ sig2 = sig23;
 %group = logical(data.labels);          % all data
 kernel = 'RBF_kernel';
 whiten = 0;
-w = 0;                                  % wccn
+wcc = 0;                                  % wccn
 
 X = data.features(group,:);
 Y = data.labels(group);
@@ -41,7 +41,7 @@ for k = 1:K
     test_idx = (folds == k);
     train_idx = (folds ~= k);
     
-    %[gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
+    [gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
     
     if whiten == 1
         m = mean(X(train_idx,:));
@@ -51,7 +51,7 @@ for k = 1:K
     end
     
     features_wccn = zeros(size(data.features));
-    if w == 1
+    if wcc == 1
      % Lf=wccn(data.features(data.females&train_idx',:), who(data.females&train_idx')');
      % Lm=wccn(data.features(data.males&train_idx',:), who(data.males&train_idx')');
      % Lc=wccn(data.features(data.children&train_idx',:), who(data.children&train_idx')');
