@@ -4,7 +4,7 @@ addpath([cd '/LSSVM/LSSVMlabv1_8_R2009b_R2011a'])
 dataFolderPath = '/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/';
 addpath(dataFolderPath)
 
-data = load([dataFolderPath 'aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams.mat']);
+data = load([dataFolderPath 'aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams_noCms_60p.mat']);
 load([dataFolderPath '/fixed_folds_aGender_K15.mat']);
 %load('hyperparams.mat');
 

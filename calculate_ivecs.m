@@ -11,14 +11,14 @@ MFCCPart    = 0;
 
 %% Train data
 train_database = load('agender_train_dev_WEKA.mat');
-train_database = train_database.database;
+train_database = train_database.database60p;
 train_database = sortrows(train_database,'file_id','ascend');
 
 %% Test data
 if cv == 0
     K = 1;
     test_database = load('agender_train_dev_WEKA.mat');
-    test_database = test_database.database;
+    test_database = test_database.database60p;
     test_database = sortrows(test_database,'file_id','ascend');
 end
 
@@ -27,14 +27,22 @@ if load_ubm == 0,
     %ubm_database = train_database;
     %ubm_database = load('/storage/dane/jgrzybowska/MATLAB/ivectors/kroswalidacja_ivectors/parameterization_and_data_prep/_database_YT_agender_german_ubm.mat');
     ubm_database = load('agender_test_WEKA.mat');
-    ubm_database = ubm_database.all_cms;
-    ubm_database = num2cell(ubm_database, [1 2]);
+    ubm_database = ubm_database.all_60p_cell;
+    %% dla all
+    %ubm_database = num2cell(ubm_database, 1);
+    %ubm_database = ubm_database';
+    %%
+    %ubm_database = num2cell(ubm_database, [1 2]);
     %ubm_database = ubm_database.database;
     %T_database = train_database;
     %T_database = load('/storage/dane/jgrzybowska/MATLAB/ivectors/kroswalidacja_ivectors/parameterization_and_data_prep/_database_YT_agender_german_ubm.mat');
     T_database = load('agender_test_WEKA.mat'); 
-    T_database = T_database.all_cms;
-    T_database = num2cell(T_database, [1 2]);
+    T_database = T_database.all_60p_cell;
+    %% dla all
+    %T_database = num2cell(T_database, 1);
+    %T_database = T_database';
+    %%
+    %T_database = num2cell(T_database, [1 2]);
     %T_database = T_database.database;
     %ubm_database = checkDatabaseNaN(ubm_database);
     %T_database = checkDatabaseNaN(T_database);
@@ -137,7 +145,7 @@ females = (ascii == 102);
 children = (ascii == 120);
 males = (ascii == 109);
 %%
-save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
+save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams_noCms_60p_cell.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
 
 rmpath([cd '/MSR Identity Toolkit v1.0/code'])
 rmpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')
