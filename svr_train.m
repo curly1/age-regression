@@ -1,11 +1,11 @@
-%clear, close all;
+clear, close all;
 
 addpath([cd '/LSSVM/LSSVMlabv1_8_R2009b_R2011a'])
 dataFolderPath = '/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/';
 addpath(dataFolderPath)
 
-data = load([dataFolderPath 'aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams_noCms_60p.mat']);
-load([dataFolderPath '/fixed_folds_aGender_K15.mat']);
+data = load([dataFolderPath 'agender_train_dev_WEKA.mat']);
+%load([dataFolderPath '/fixed_folds_aGender_K15.mat']);
 %load('hyperparams.mat');
 
 % SETTINGS
@@ -13,11 +13,11 @@ minAge = 6;
 maxAge = 80;
 %group = (data.females);
 %group = (data.males | data.females | data.children);
-group = logical(data.labels);
-folds = f;
+%group = logical(data.labels);
+%folds = f;
 %gam = gam3;
 %sig2 = sig23;
-who = w;
+%who = w;
 %gam = ones(15,1).*gam;
 %sig2 = ones(15,1).*sig2;
 
@@ -27,21 +27,40 @@ kernel = 'RBF_kernel';
 whiten = 0;
 wcc = 0;                                  % wccn
 
-X = data.features(group,:);
-Y = data.labels(group);
+%X = data.features(group,:);
+%Y = data.labels(group);
+X = data.all;
+Y = data.alllabels;
 
 K = 15;
 type = 'function estimation';
-%[gam,sig2] = tunelssvm({X,Y,type,[],[], kernel},...
-%   'simplex', 'leaveoneoutlssvm',{'mse'});
-%folds = crossvalind('Kfold', size(X,1), K);   
+[gam,sig2] = tunelssvm({X,Y,type,[],[], kernel},...
+   'simplex', 'leaveoneoutlssvm',{'mse'});
+folds = crossvalind('Kfold', size(X,1), K);
+
+% same speaker not in train and test
+allfolds = 0; 
+[~,b] = unique(data.allidx);
+for i = 1:size(b,1)
+    if i ~=  size(b,1)
+        n = b(i+1)-b(i);
+    else
+        n = size(X,1)-b(i)+1;
+    end
+        
+    fol = repmat(folds(i),n,1); 
+    allfolds = [allfolds;fol];
+end
+allfolds = allfolds(2:end,1);
+folds = allfolds;
 %%
 for k = 1:K
     k
     test_idx = (folds == k);
     train_idx = (folds ~= k);
     
-    [gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
+    %[gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
+    
     
     if whiten == 1
         m = mean(X(train_idx,:));
@@ -80,9 +99,9 @@ for k = 1:K
     %gam = 25301.0366;   % poly
     %sig2 = [208.7688 3];
     
-    [alpha,b] = trainlssvm({X(train_idx,:),Y(train_idx),type,gam(k),sig2(k), kernel});
+    [alpha,b] = trainlssvm({X(train_idx,:),Y(train_idx),type,gam,sig2, kernel});
     
-    Y_pred = simlssvm({X(train_idx,:),Y(train_idx),type,gam(k),sig2(k), kernel ,'preprocess'},...
+    Y_pred = simlssvm({X(train_idx,:),Y(train_idx),type,gam,sig2, kernel ,'preprocess'},...
         {alpha,b},X(test_idx,:));
     Y_pred(Y_pred < minAge) = minAge;
     Y_pred(Y_pred > maxAge) = maxAge;

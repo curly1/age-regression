@@ -120,6 +120,7 @@ I = eye(tv_dim);
 T_invS =  bsxfun(@rdivide, T, S');
 
 parts = 250; % modify this based on your resources
+%parts = nfiles;
 nbatch = floor( nfiles/parts + 0.99999 );
 for batch = 1 : nbatch,
     start = 1 + ( batch - 1 ) * parts;
@@ -130,8 +131,8 @@ for batch = 1 : nbatch,
     F1 = F(index, :);
     Ex = zeros(tv_dim, len);
     Exx = zeros(tv_dim, tv_dim, len);
-    parfor (ix = 1 : len, nworkers)
-%     for ix = 1 : len,
+%    parfor (ix = 1 : len, nworkers)
+     for ix = 1 : len,
         L = I +  bsxfun(@times, T_invS, N1(ix, idx_sv)) * T';
         Cxx = pinv(L); % this is the posterior covariance Cov(x,x)
         B = T_invS * F1(ix, :)';
@@ -139,8 +140,8 @@ for batch = 1 : nbatch,
         Exx(:, :, ix) = Cxx + Ex(:, ix) * Ex(:, ix)';
     end
     RU = RU + Ex * F1;
-    parfor (mix = 1 : nmix, nworkers)
-%     for mix = 1 : nmix,
+%    parfor (mix = 1 : nmix, nworkers)
+     for mix = 1 : nmix,
         tmp = bsxfun(@times, Exx, reshape(N1(:, mix),[1 1 len]));
         LU{mix} = LU{mix} + sum(tmp, 3);
     end

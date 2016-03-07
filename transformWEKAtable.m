@@ -1,7 +1,12 @@
-function [d1, d2] = transformWEKAtable(WEKAdatabase)
+function [d1] = transformWEKAtable(WEKAdatabase,WEKAdatabaseWithAge)
+% agenderdev_st - WEKAdatabase
+% agenderdev - WEKAdatabaseWithAge
 
 WEKAdatabase = sortrows(WEKAdatabase,'name','ascend');
+WEKAdatabaseWithAge = sortrows(WEKAdatabaseWithAge,'name','ascend');
 n = height(WEKAdatabase);
+
+npar = 450;
 
 all_file_id = cell(n,1);
 
@@ -10,9 +15,9 @@ for i = 1:n
 end
 
 [file_id,idx] = unique(all_file_id);
-age_class = WEKAdatabase.agegroup(idx);
-age = WEKAdatabase.age(idx);
-gender = WEKAdatabase.gender(idx);
+age_class = WEKAdatabaseWithAge.agegroup(idx);
+age = WEKAdatabaseWithAge.age(idx);
+gender = WEKAdatabaseWithAge.gender(idx);
 
 s = length(idx);                % liczba mowcow
 database = table(file_id);
@@ -26,9 +31,9 @@ for i = 1:s
     else
         u = n+1-idx(s);
     end
-    params = zeros(450,u);
+    params = zeros(npar,u);
     for j = 1:u
-       params(:,j) = WEKAdatabase{k,2:451}';
+       params(:,j) = WEKAdatabase{k,2:npar+1}';
        k = k+1;
     end
     WEKAPar{i,1} = params;
@@ -40,14 +45,14 @@ c = table(gender);
 d1 = [database, WEKAPar, a, b, c];
 d1.Properties.VariableNames{2} = 'MFCC_delta_cms';
 
-WEKAPar_cms = cell(size(WEKAPar));
-normWEKAPar_cms{i,1} = cell(size(WEKAPar));
-for i = 1:height(d1)
-    WEKAPar_cms{i,1} = cms(d1.MFCC_delta_cms{i});
-    normWEKAPar_cms{i,1} = normPar(WEKAPar_cms{i,1});
-end
+%WEKAPar_cms = cell(size(WEKAPar));
+%normWEKAPar_cms{i,1} = cell(size(WEKAPar));
+%for i = 1:height(d1)
+%    WEKAPar_cms{i,1} = cms(d1.MFCC_delta_cms{i});
+%    normWEKAPar_cms{i,1} = normPar(WEKAPar_cms{i,1});
+%end
 
-d2 = [database, normWEKAPar_cms, a, b, c];
-d2.Properties.VariableNames{2} = 'MFCC_delta_cms';
+%d2 = [database, normWEKAPar_cms, a, b, c];
+%d2.Properties.VariableNames{2} = 'MFCC_delta_cms';
 
 end

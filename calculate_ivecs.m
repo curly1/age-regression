@@ -10,15 +10,15 @@ plot        = 1;
 MFCCPart    = 0;
 
 %% Train data
-train_database = load('agender_train_dev_WEKA.mat');
-train_database = train_database.database60p;
+train_database = load('agender_train_WEKA.mat');
+train_database = train_database.database_stand;
 train_database = sortrows(train_database,'file_id','ascend');
 
 %% Test data
 if cv == 0
     K = 1;
-    test_database = load('agender_train_dev_WEKA.mat');
-    test_database = test_database.database60p;
+    test_database = load('agender_train_WEKA.mat');
+    test_database = test_database.database_stand;
     test_database = sortrows(test_database,'file_id','ascend');
 end
 
@@ -26,8 +26,9 @@ end
 if load_ubm == 0,
     %ubm_database = train_database;
     %ubm_database = load('/storage/dane/jgrzybowska/MATLAB/ivectors/kroswalidacja_ivectors/parameterization_and_data_prep/_database_YT_agender_german_ubm.mat');
-    ubm_database = load('agender_test_WEKA.mat');
-    ubm_database = ubm_database.all_60p_cell;
+    ubm_database = load('agender_dev_WEKA.mat');
+    %ubm_database = ubm_database.all_60p_cell;
+    ubm_database = ubm_database.database_stand;
     %% dla all
     %ubm_database = num2cell(ubm_database, 1);
     %ubm_database = ubm_database';
@@ -36,8 +37,9 @@ if load_ubm == 0,
     %ubm_database = ubm_database.database;
     %T_database = train_database;
     %T_database = load('/storage/dane/jgrzybowska/MATLAB/ivectors/kroswalidacja_ivectors/parameterization_and_data_prep/_database_YT_agender_german_ubm.mat');
-    T_database = load('agender_test_WEKA.mat'); 
-    T_database = T_database.all_60p_cell;
+    T_database = load('agender_dev_WEKA.mat'); 
+    %T_database = T_database.all_60p_cell;
+    T_database = T_database.database_stand;
     %% dla all
     %T_database = num2cell(T_database, 1);
     %T_database = T_database';
@@ -62,9 +64,9 @@ classes = unique(train_database.age_class);
 NClass =  size(unique(train_database.age_class),1);
 
 %% Train/load ubm
-if load_ubm == 1, for_ubm = load('ubm1024_T400_agender_german_ubm_PitchParams12D.mat'); ubm = for_ubm.ubm; T = for_ubm.T;
+if load_ubm == 1, for_ubm = load('ubm1024_T400_agender_dev_WEKA_stand_60p.mat'); ubm = for_ubm.ubm; T = for_ubm.T;
 else %[ubm,T] = ubmCalc(ubm_database.MFCC_delta_cms, T_database.MFCC_delta_cms);
-    [ubm,T] = ubmCalc(ubm_database, T_database);
+    [ubm,T] = ubmCalc(ubm_database.MFCC_delta_cms, T_database.MFCC_delta_cms);
 end
 %% MFCC Partition
 if MFCCPart == 1
@@ -145,7 +147,7 @@ females = (ascii == 102);
 children = (ascii == 120);
 males = (ascii == 109);
 %%
-save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_400_TUBMz_agender_test_WEKA_WEKAParams_noCms_60p_cell.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
+save('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/aGender_ivec_3200_TUBMz_agender_dev_WEKA_WEKAParams_stand.mat', 'features', 'labels', 'stats', 'model_ivecs', 'females', 'males', 'children');
 
 rmpath([cd '/MSR Identity Toolkit v1.0/code'])
 rmpath('/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data')
