@@ -5,8 +5,13 @@ dataFolderPath = '/storage/dane/jgrzybowska/MATLAB/ivectors/age_regression/data/
 addpath(dataFolderPath)
 
 data = load([dataFolderPath 'agender_train_dev_WEKA.mat']);
-%load([dataFolderPath '/fixed_folds_aGender_K15.mat']);
+%devdata = load([dataFolderPath 'agender_test_WEKA.mat']);
+load([dataFolderPath '/fixed_folds_aGender_K15.mat'],'f');
+load('agender_test_WEKA_mean_std.mat');
 %load('hyperparams.mat');
+%devdata = devdata.all_stand;
+%cols = randi(size(devdata,2),1000,1);
+%devdata = devdata(:,clos);
 
 % SETTINGS
 minAge = 6;
@@ -34,9 +39,10 @@ Y = data.alllabels;
 
 K = 15;
 type = 'function estimation';
-[gam,sig2] = tunelssvm({X,Y,type,[],[], kernel},...
-   'simplex', 'leaveoneoutlssvm',{'mse'});
-folds = crossvalind('Kfold', size(X,1), K);
+%[gam,sig2] = tunelssvm({X,Y,type,[],[], kernel},...
+%   'simplex', 'leaveoneoutlssvm',{'mse'});
+%folds = crossvalind('Kfold', size(X,1), K);
+folds = f;
 
 % same speaker not in train and test
 allfolds = 0; 
@@ -53,14 +59,29 @@ for i = 1:size(b,1)
 end
 allfolds = allfolds(2:end,1);
 folds = allfolds;
+%folds = data.folds;
+
+X_stand = bsxfun(@minus,X,mean_test_aGender');
+X_stand = bsxfun(@times,X_stand,1./std_test_aGender');
+X = X_stand;
+
 %%
+allTestsScores = [];
 for k = 1:K
     k
     test_idx = (folds == k);
     train_idx = (folds ~= k);
     
-    %[gam(k), sig2(k)] = tunelssvm({X(train_idx,:),Y(train_idx),type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
+    %testSpeakers = data.allidx(test_idx);
     
+    X_tr = X(train_idx,:);
+    Y_tr = Y(train_idx);
+    
+    rows = randi(size(X_tr,1),5000,1);
+    devX = X_tr(rows,:);
+    devY = Y_tr(rows,:);
+    
+    [gam(k), sig2(k)] = tunelssvm({devX,devY,type,[],[], kernel}, 'simplex', 'crossvalidatelssvm', {10,'mse'});      
     
     if whiten == 1
         m = mean(X(train_idx,:));
@@ -69,7 +90,7 @@ for k = 1:K
         X = X*W;
     end
     
-    features_wccn = zeros(size(data.features));
+ %   features_wccn = zeros(size(data.features));
     if wcc == 1
      % Lf=wccn(data.features(data.females&train_idx',:), who(data.females&train_idx')');
      % Lm=wccn(data.features(data.males&train_idx',:), who(data.males&train_idx')');
@@ -99,9 +120,9 @@ for k = 1:K
     %gam = 25301.0366;   % poly
     %sig2 = [208.7688 3];
     
-    [alpha,b] = trainlssvm({X(train_idx,:),Y(train_idx),type,gam,sig2, kernel});
+    [alpha,b] = trainlssvm({X_tr,Y_tr,type,gam(k),sig2(k), kernel});
     
-    Y_pred = simlssvm({X(train_idx,:),Y(train_idx),type,gam,sig2, kernel ,'preprocess'},...
+    Y_pred = simlssvm({X_tr,Y_tr,type,gam(k),sig2(k), kernel ,'preprocess'},...
         {alpha,b},X(test_idx,:));
     Y_pred(Y_pred < minAge) = minAge;
     Y_pred(Y_pred > maxAge) = maxAge;
@@ -111,8 +132,12 @@ for k = 1:K
     %MAE1 = 1/(length(Y_pred1))*sum(abs(Y_pred1-Y_true));
     %MAE_std1 = std(abs(Y_pred1-Y_true));
     
-    [Y_true, idx] = sort(Y_true);
-    Y_pred = Y_pred(idx);
+    testScores = zeros(size(data.allidx,1),1);
+    testScores(test_idx) = Y_pred;
+    allTestsScores = [allTestsScores, testScores];
+    
+    %[Y_true_sorted, idx] = sort(Y_true);
+    %Y_pred_sorted = Y_pred(idx);
     
     Y_prior = ones(size(Y_true)).*mean(Y(train_idx));
     MAE_prior(k) = 1/(length(Y_prior))*sum(abs(Y_prior-Y_true));
@@ -121,16 +146,37 @@ for k = 1:K
     
     p(k) = 1/(length(Y_pred)-1)*((Y_true-mean(Y_true))/std(Y_true))'*((Y_pred-mean(Y_pred))/std(Y_pred));
 end
+%%
+allScoresPredicted = sum(allTestsScores,2);
+Y_pred_per_speaker = zeros(size(f,1),1);
+for i = 1:size(f,1)
+    m = (data.allidx == i);
+    Y_pred_per_speaker(i,1) = mean(allScoresPredicted(m));
+end
 
+Y_true_per_speaker = data.database.age;
+speaker_id = [1:770]';
+
+arff450scores = table(speaker_id,Y_true_per_speaker,Y_pred_per_speaker);
+
+%save('arff450meanPerSpeaker.mat', 'arff450scores');
+
+MAE_mean = 1/(length(Y_true_per_speaker))*sum(abs(Y_pred_per_speaker-Y_true_per_speaker));
+%%
 mean(MAE_prior)
 mean(MAE)
 mean(p)
 
+[Y_true_sorted, idx] = sort(Y_true_per_speaker);
+Y_pred_sorted = Y_pred_per_speaker(idx);
+
 figure()
-plot(Y_true, '-o'); hold on
-plot(Y_pred, 'or')
+plot(Y_true_sorted, '-o'); hold on
+plot(Y_pred_sorted, 'or')
 legend('True', 'Predicted')
 ylabel('age'), xlabel('# speaker')
+
+save('arff450scores.mat')
 
 rmpath(dataFolderPath)
 rmpath([cd '/LSSVM/LSSVMlabv1_8_R2009b_R2011a'])
